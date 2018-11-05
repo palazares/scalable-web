@@ -1,10 +1,10 @@
 package com.waes.palazares.scalableweb.repository;
 
 import com.waes.palazares.scalableweb.domain.DifferenceRecord;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 /**
- * Simple CRUD repository interface used to store differences
+ * MongoDB repository  used to store differences
  */
-public interface DifferenceRepository extends CrudRepository<DifferenceRecord, String> {
+public interface DifferenceRepository extends MongoRepository<DifferenceRecord, String> {
 }

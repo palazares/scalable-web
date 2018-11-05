@@ -1,8 +1,6 @@
 package com.waes.palazares.scalableweb.domain;
 import lombok.*;
 
-import javax.persistence.*;
-
 /**
  * Embeddable object used to store comparison result
  */
@@ -10,10 +8,8 @@ import javax.persistence.*;
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
-@Embeddable
+@EqualsAndHashCode
 public class DifferenceResult {
-    @Enumerated(EnumType.STRING)
-    @Column(length = 17)
     private DifferenceType type;
 
     private String message;
