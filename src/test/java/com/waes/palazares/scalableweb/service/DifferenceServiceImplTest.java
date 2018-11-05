@@ -13,7 +13,6 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.data.repository.CrudRepository;
 
 import java.util.Base64;
 import java.util.Optional;
@@ -103,8 +102,7 @@ public class DifferenceServiceImplTest {
     @Test(expected = InvalidRecordContentException.class)
     public void shouldThrowInvalidRecordContentWhenRightDocIsNull() throws InavlidIdException, InvalidRecordContentException {
         //given
-        DifferenceRecord testIdRecord = new DifferenceRecord("testID");
-        testIdRecord.setLeft("content".getBytes());
+        DifferenceRecord testIdRecord = DifferenceRecord.builder().id("testID").left("content".getBytes()).build();
         //when
         when(repository.findById(eq("testID"))).thenReturn(Optional.of(testIdRecord));
         diffService.getDifference("testID");
@@ -113,9 +111,11 @@ public class DifferenceServiceImplTest {
     @Test(expected = InvalidRecordContentException.class)
     public void shouldThrowInvalidRecordContentWhenRightDocIsEmpty() throws InavlidIdException, InvalidRecordContentException {
         //given
-        DifferenceRecord testIdRecord = new DifferenceRecord("testID");
-        testIdRecord.setLeft("content".getBytes());
-        testIdRecord.setRight(new byte[0]);
+        DifferenceRecord testIdRecord = DifferenceRecord.builder()
+                .id("testID")
+                .left("content".getBytes())
+                .right(new byte[0])
+                .build();
         //when
         when(repository.findById(eq("testID"))).thenReturn(Optional.of(testIdRecord));
         diffService.getDifference("testID");
@@ -124,8 +124,10 @@ public class DifferenceServiceImplTest {
     @Test(expected = InvalidRecordContentException.class)
     public void shouldThrowInvalidRecordContentWhenLeftDocIsNull() throws InavlidIdException, InvalidRecordContentException {
         //given
-        DifferenceRecord testIdRecord = new DifferenceRecord("testID");
-        testIdRecord.setRight("content".getBytes());
+        DifferenceRecord testIdRecord = DifferenceRecord.builder()
+                .id("testID")
+                .right("content".getBytes())
+                .build();
         //when
         when(repository.findById(eq("testID"))).thenReturn(Optional.of(testIdRecord));
         diffService.getDifference("testID");
@@ -134,9 +136,11 @@ public class DifferenceServiceImplTest {
     @Test(expected = InvalidRecordContentException.class)
     public void shouldThrowInvalidRecordContentWhenLeftDocIsEmpty() throws InavlidIdException, InvalidRecordContentException {
         //given
-        DifferenceRecord testIdRecord = new DifferenceRecord("testID");
-        testIdRecord.setRight("content".getBytes());
-        testIdRecord.setLeft(new byte[0]);
+        DifferenceRecord testIdRecord = DifferenceRecord.builder()
+                .id("testID")
+                .right("content".getBytes())
+                .left(new byte[0])
+                .build();
         //when
         when(repository.findById(eq("testID"))).thenReturn(Optional.of(testIdRecord));
         diffService.getDifference("testID");
@@ -205,10 +209,12 @@ public class DifferenceServiceImplTest {
         String testId = "testID";
         byte[] leftContent = "leftTestContent".getBytes();
         byte[] rightContent = "rightTestContent".getBytes();
-        DifferenceRecord differenceRecord = new DifferenceRecord(testId);
-        differenceRecord.setRight(rightContent);
-        differenceRecord.setLeft("oldContent".getBytes());
-        differenceRecord.setResult(new DifferenceResult(DifferenceType.DIFFERENT_SIZE, "testResult"));
+        DifferenceRecord differenceRecord = DifferenceRecord.builder()
+                .id(testId)
+                .left("oldContent".getBytes())
+                .right(rightContent)
+                .result(DifferenceResult.builder().type(DifferenceType.DIFFERENT_SIZE).message("testResult").build())
+                .build();
         //when
         when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
         diffService.putLeft(testId, Base64.getEncoder().encodeToString(leftContent));
@@ -229,10 +235,12 @@ public class DifferenceServiceImplTest {
         String testId = "testID";
         byte[] leftContent = "leftTestContent".getBytes();
         byte[] rightContent = "rightTestContent".getBytes();
-        DifferenceRecord differenceRecord = new DifferenceRecord(testId);
-        differenceRecord.setLeft(leftContent);
-        differenceRecord.setRight("oldContent".getBytes());
-        differenceRecord.setResult(new DifferenceResult(DifferenceType.DIFFERENT_SIZE, "testResult"));
+        DifferenceRecord differenceRecord = DifferenceRecord.builder()
+                .id(testId)
+                .left(leftContent)
+                .right("oldContent".getBytes())
+                .result(DifferenceResult.builder().type(DifferenceType.DIFFERENT_SIZE).message("testResult").build())
+                .build();
         //when
         when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
         diffService.putRight(testId, Base64.getEncoder().encodeToString(rightContent));
@@ -253,11 +261,13 @@ public class DifferenceServiceImplTest {
         String testId = "testID";
         byte[] leftContent = "leftTestContent".getBytes();
         byte[] rightContent = "rightTestContent".getBytes();
-        DifferenceResult testResult = new DifferenceResult(DifferenceType.DIFFERENT_SIZE, "testResult");
-        DifferenceRecord differenceRecord = new DifferenceRecord(testId);
-        differenceRecord.setLeft(leftContent);
-        differenceRecord.setRight(rightContent);
-        differenceRecord.setResult(testResult);
+        DifferenceResult testResult = DifferenceResult.builder().type(DifferenceType.DIFFERENT_SIZE).message("testResult").build();
+        DifferenceRecord differenceRecord = DifferenceRecord.builder()
+                .id(testId)
+                .left(leftContent)
+                .right(rightContent)
+                .result(testResult)
+                .build();
         //when
         when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
         DifferenceRecord difference = diffService.putRight(testId, Base64.getEncoder().encodeToString(rightContent));
@@ -273,11 +283,13 @@ public class DifferenceServiceImplTest {
         String testId = "testID";
         byte[] leftContent = "leftTestContent".getBytes();
         byte[] rightContent = "rightTestContent".getBytes();
-        DifferenceResult testResult = new DifferenceResult(DifferenceType.DIFFERENT_SIZE, "testResult");
-        DifferenceRecord differenceRecord = new DifferenceRecord(testId);
-        differenceRecord.setLeft(leftContent);
-        differenceRecord.setRight(rightContent);
-        differenceRecord.setResult(testResult);
+        DifferenceResult testResult = DifferenceResult.builder().type(DifferenceType.DIFFERENT_SIZE).message("testResult").build();
+        DifferenceRecord differenceRecord = DifferenceRecord.builder()
+                .id(testId)
+                .left(leftContent)
+                .right(rightContent)
+                .result(testResult)
+                .build();
         //when
         when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
         DifferenceRecord difference = diffService.putLeft(testId, Base64.getEncoder().encodeToString(leftContent));
@@ -292,9 +304,11 @@ public class DifferenceServiceImplTest {
         //given
         String testId = "testID";
         byte[] equalContent = "equalTestContent".getBytes();
-        DifferenceRecord differenceRecord = new DifferenceRecord(testId);
-        differenceRecord.setLeft(equalContent);
-        differenceRecord.setRight(equalContent);
+        DifferenceRecord differenceRecord = DifferenceRecord.builder()
+                .id(testId)
+                .left(equalContent)
+                .right(equalContent)
+                .build();
         //when
         when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
         diffService.getDifference(testId);
@@ -316,9 +330,11 @@ public class DifferenceServiceImplTest {
         String testId = "testID";
         byte[] leftContent = "leftTestContent".getBytes();
         byte[] rightContent = "rightTestContent".getBytes();
-        DifferenceRecord differenceRecord = new DifferenceRecord(testId);
-        differenceRecord.setLeft(leftContent);
-        differenceRecord.setRight(rightContent);
+        DifferenceRecord differenceRecord = DifferenceRecord.builder()
+                .id(testId)
+                .left(leftContent)
+                .right(rightContent)
+                .build();
         //when
         when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
         diffService.getDifference(testId);
@@ -340,9 +356,11 @@ public class DifferenceServiceImplTest {
         String testId = "testID";
         byte[] leftContent = "leftTestContent".getBytes();
         byte[] rightContent = "ightTestContent".getBytes();
-        DifferenceRecord differenceRecord = new DifferenceRecord(testId);
-        differenceRecord.setLeft(leftContent);
-        differenceRecord.setRight(rightContent);
+        DifferenceRecord differenceRecord = DifferenceRecord.builder()
+                .id(testId)
+                .left(leftContent)
+                .right(rightContent)
+                .build();
         //when
         when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
         diffService.getDifference(testId);
@@ -363,10 +381,12 @@ public class DifferenceServiceImplTest {
         //given
         String testId = "testID";
         byte[] equalContent = "equalTestContent".getBytes();
-        DifferenceRecord differenceRecord = new DifferenceRecord(testId);
-        differenceRecord.setLeft(equalContent);
-        differenceRecord.setRight(equalContent);
-        differenceRecord.setResult(new DifferenceResult(DifferenceType.EQUALS, "equals"));
+        DifferenceRecord differenceRecord = DifferenceRecord.builder()
+                .id(testId)
+                .left(equalContent)
+                .right(equalContent)
+                .result(DifferenceResult.builder().type(DifferenceType.EQUALS).message("equals").build())
+                .build();
         //when
         when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
         DifferenceRecord difference = diffService.getDifference(testId);
@@ -381,10 +401,12 @@ public class DifferenceServiceImplTest {
         //given
         String testId = "testID";
         byte[] equalContent = "equalTestContent".getBytes();
-        DifferenceRecord differenceRecord = new DifferenceRecord(testId);
-        differenceRecord.setLeft(equalContent);
-        differenceRecord.setRight(equalContent);
-        differenceRecord.setResult(new DifferenceResult(DifferenceType.EQUALS, "equals"));
+        DifferenceRecord differenceRecord = DifferenceRecord.builder()
+                .id(testId)
+                .left(equalContent)
+                .right(equalContent)
+                .result(DifferenceResult.builder().type(DifferenceType.EQUALS).message("equals").build())
+                .build();
         //when
         when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
         DifferenceRecord difference = diffService.getDifference(testId);

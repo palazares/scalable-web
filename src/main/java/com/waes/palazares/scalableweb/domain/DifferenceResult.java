@@ -1,20 +1,17 @@
 package com.waes.palazares.scalableweb.domain;
-import lombok.Data;
-import lombok.NonNull;
+import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
-@Data
+@Builder(toBuilder = true)
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@Getter
 @Embeddable
 public class DifferenceResult {
-    @NonNull
     @Enumerated(EnumType.STRING)
     @Column(length = 17)
-    private final DifferenceType type;
+    private DifferenceType type;
 
-    @NonNull
-    private final String message;
+    private String message;
 }

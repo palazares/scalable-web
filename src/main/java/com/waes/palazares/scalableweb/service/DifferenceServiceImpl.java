@@ -45,8 +45,7 @@ public class DifferenceServiceImpl implements DifferenceService {
         //No need to compare and save again if we already have a Result
         if(record.getResult() == null) {
             log.debug("Processing result for the record with id: {}", id);
-            record.setResult(compare(record));
-            return repository.save(record);
+            return repository.save(record.toBuilder().result(compare(record)).build());
         }
 
         log.debug("Record with id: {} already has result: {}", id, record.getResult().getType());
@@ -68,23 +67,22 @@ public class DifferenceServiceImpl implements DifferenceService {
 
         byte[] decodedDoc = decode(doc);
 
-        DifferenceRecord record = repository.findById(id).orElse(new DifferenceRecord(id));
+        DifferenceRecord record = repository.findById(id).orElse(DifferenceRecord.builder().id(id).build());
 
         byte[] oldDoc;
         if(isLeft){
             oldDoc = record.getLeft();
-            record.setLeft(decodedDoc);
+            record = record.toBuilder().left(decodedDoc).build();
         }
         else{
             oldDoc = record.getRight();
-            record.setRight(decodedDoc);
+            record = record.toBuilder().right(decodedDoc).build();
         }
 
         //Nullify result and save new record if it differs from old one
         if(!Arrays.equals(oldDoc, decodedDoc)){
             log.debug("Nullifying result and saving record with id: {}", id);
-            record.setResult(null);
-            return repository.save(record);
+            return repository.save(record.toBuilder().result(null).build());
         }
 
         log.debug("Record was unchanged after request with id: {}. Content is the same", id);
@@ -111,16 +109,18 @@ public class DifferenceServiceImpl implements DifferenceService {
 
         if (Arrays.equals(left, right)) {
             log.debug("Record with id: {} has equal content", record.getId());
-            return new DifferenceResult(DifferenceType.EQUALS, "Records are equal. Congratulations!");
+            return DifferenceResult.builder().type(DifferenceType.EQUALS).message("Records are equal. Congratulations!").build();
         }
 
         if (left.length != right.length) {
             log.debug("Record with id: {} has different size content", record.getId());
-            return new DifferenceResult(DifferenceType.DIFFERENT_SIZE, "Records have different size. What a pity!");
+            return DifferenceResult.builder().type(DifferenceType.DIFFERENT_SIZE).message("Records have different size. What a pity!").build();
         }
 
         log.debug("Record with id: {} has different content", record.getId());
-        return new DifferenceResult(DifferenceType.DIFFERENT_CONTENT,"Records have the same size, but content is different. Differences insight: " +
-                Offsets.getOffsetsMessage(left, right));
+        return DifferenceResult.builder()
+                .type(DifferenceType.DIFFERENT_CONTENT)
+                .message("Records have the same size, but content is different. Differences insight: " + Offsets.getOffsetsMessage(left, right))
+                .build();
     }
 }

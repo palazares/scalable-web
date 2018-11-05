@@ -1,18 +1,20 @@
 package com.waes.palazares.scalableweb.domain;
 
-import lombok.Data;
-import lombok.NonNull;
+import lombok.*;
 
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-@Data
 @Entity
+@Builder(toBuilder = true)
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@Getter
+@EqualsAndHashCode
 public class DifferenceRecord {
-    @NonNull
     @Id
-    private final String id;
+    private String id;
 
     private byte[] left;
 

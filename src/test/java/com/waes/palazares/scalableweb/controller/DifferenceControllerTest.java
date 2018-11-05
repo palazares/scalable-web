@@ -3,9 +3,6 @@ package com.waes.palazares.scalableweb.controller;
 import com.waes.palazares.scalableweb.domain.DifferenceRecord;
 import com.waes.palazares.scalableweb.domain.DifferenceResult;
 import com.waes.palazares.scalableweb.domain.DifferenceType;
-import com.waes.palazares.scalableweb.exception.InavlidIdException;
-import com.waes.palazares.scalableweb.exception.InvalidBase64Exception;
-import com.waes.palazares.scalableweb.exception.InvalidRecordContentException;
 import com.waes.palazares.scalableweb.service.DifferenceService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,12 +34,11 @@ public class DifferenceControllerTest {
     private DifferenceService differenceService;
 
     @Test
-    public void shouldCallServiceWhenPutLeft() throws Exception, InavlidIdException, InvalidBase64Exception {
+    public void shouldCallServiceWhenPutLeft() throws Exception {
         //given
         String testId = "testId";
         String testContent = "testContent";
-        DifferenceRecord testRecord = new DifferenceRecord(testId);
-        testRecord.setLeft(testContent.getBytes());
+        DifferenceRecord testRecord = DifferenceRecord.builder().id(testId).left(testContent.getBytes()).build();
         //when
         when(differenceService.putLeft(testId, testContent)).thenReturn(testRecord);
         //then
@@ -56,12 +52,11 @@ public class DifferenceControllerTest {
     }
 
     @Test
-    public void shouldCallServiceWhenPutRight() throws Exception, InavlidIdException, InvalidBase64Exception {
+    public void shouldCallServiceWhenPutRight() throws Exception {
         //given
         String testId = "testId";
         String testContent = "testContent";
-        DifferenceRecord testRecord = new DifferenceRecord(testId);
-        testRecord.setRight(testContent.getBytes());
+        DifferenceRecord testRecord = DifferenceRecord.builder().id(testId).right(testContent.getBytes()).build();
         //when
         when(differenceService.putRight(testId, testContent)).thenReturn(testRecord);
         //then
@@ -75,12 +70,14 @@ public class DifferenceControllerTest {
     }
 
     @Test
-    public void shouldCallServiceWhenGetDifference() throws Exception, InavlidIdException, InvalidRecordContentException {
+    public void shouldCallServiceWhenGetDifference() throws Exception {
         //given
         String testId = "testId";
         String testMessage = "testEquals";
-        DifferenceRecord testRecord = new DifferenceRecord(testId);
-        testRecord.setResult(new DifferenceResult(DifferenceType.EQUALS, testMessage));
+        DifferenceRecord testRecord = DifferenceRecord.builder()
+                .id(testId)
+                .result(DifferenceResult.builder().type(DifferenceType.EQUALS).message(testMessage).build())
+                .build();
         //when
         when(differenceService.getDifference(testId)).thenReturn(testRecord);
         //then
