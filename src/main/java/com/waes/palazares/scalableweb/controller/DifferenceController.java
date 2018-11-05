@@ -6,6 +6,7 @@ import com.waes.palazares.scalableweb.exception.InavlidIdException;
 import com.waes.palazares.scalableweb.exception.InvalidBase64Exception;
 import com.waes.palazares.scalableweb.exception.InvalidRecordContentException;
 import com.waes.palazares.scalableweb.service.DifferenceService;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,8 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * Difference endpoints controller.
- * Provides put endpoints to add left and right side document and  get endpoint for difference
+ * Provides put endpoints to add left and right side document and get endpoint for difference
  */
+@Api(description = "Difference endpoints. Store base64 left and right strings, then get the difference")
 @Controller
 @RequestMapping("v1/diff")
 public class DifferenceController {
