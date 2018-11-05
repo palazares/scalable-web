@@ -15,6 +15,10 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.Base64;
 
+/**
+ * Implementation of {@code DifferenceService} interface.
+ * Integrates with CRUD storage, makes validation checks, builds difference results
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -31,6 +35,14 @@ public class DifferenceServiceImpl implements DifferenceService {
         return putRecord(id, doc, true);
     }
 
+    /**
+     * Checks that record already has a result and returns it without further processing if it already exists
+     *
+     * @param id document id
+     * @return difference result
+     * @throws InavlidIdException when id is empty or null
+     * @throws InvalidRecordContentException when can't find record with provided id, only one side has been stored so far or record content is empty
+     */
     @Override
     public DifferenceRecord getDifference(String id) throws InvalidRecordContentException, InavlidIdException {
         log.debug("Get difference request with id: {}", id);
@@ -52,6 +64,16 @@ public class DifferenceServiceImpl implements DifferenceService {
         return record;
     }
 
+    /**
+     * Nullify result only if new content is different from already existing. Otherwise old object is returned and no actual persistence performed
+     *
+     * @param id document id
+     * @param doc base64 encoded document
+     * @param isLeft document side
+     * @return persisted difference record
+     * @throws InavlidIdException when id is empty or null
+     * @throws InvalidBase64Exception when content is not valid base64 string
+     */
     private DifferenceRecord putRecord(String id, String doc, boolean isLeft) throws InavlidIdException, InvalidBase64Exception {
         log.debug("Put record request with id: {}", id);
 

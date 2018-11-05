@@ -9,8 +9,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Utility class responsible for getting actual difference offsets of byte arrays.
+ * It generates custom message containing list of differences having starting index and length for each difference subset
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Offsets {
+    /**
+     * Method makes size checks and throws UnsupportedOperationException if one of the arrays is empty or they have different sizes.
+     * Arguments checked for null
+     *
+     * @param left first byte array
+     * @param right second byte array
+     * @return message containing list of differences having starting index and length for each difference subset - [(index,length),..]
+     */
     public static String getOffsetsMessage(@NonNull byte[] left, @NonNull byte[] right){
         if(left.length < 1 || right.length < 1 || left.length != right.length){
             throw new UnsupportedOperationException("Can't compare offsets with zero or different length");

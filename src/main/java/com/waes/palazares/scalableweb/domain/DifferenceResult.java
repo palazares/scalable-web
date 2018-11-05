@@ -3,6 +3,9 @@ import lombok.*;
 
 import javax.persistence.*;
 
+/**
+ * Embeddable object used to store comparison result
+ */
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
