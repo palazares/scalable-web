@@ -61,10 +61,15 @@ URI | HTTP Method | Content | Description
 
 ## Further improvements
 * [Actuator](https://www.baeldung.com/spring-boot-actuators) service for PROD monitoring 
-* Security consideration (SSL cert for api calls)
 * Docker for deployment
-* DEV/PROD profiles
+* Spring security template prod config has been added to illustrate the way of X.509 authentication. Please note that tests and dev profile are left without security for simplification. 
+The one could write integration tests with security implementation. Local dev run could also use predefined certs and security config.
+* For easy security config switching spring [profiles](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-profiles.html) were used
 * Return revison number of DifferenceRecord in PUT response so that client might get an idea if he gets difference for his revision of document.
 Keep storing only only one revision - last one. 
 * MongoDB is NoSQL distributed data base. It supports easy scalability, eg with sharding. Choosing such DB we could make service more scalable in future.
+* In enterprise environment it's better to use one facing balancing service (still with DR), which would proxy actual work to easily scalable service instances like the current one.
+This facing service could also take all security responsibility (authentication+authorization) and proxy request to DMZ zone where simple services live.
+Facing balancer could be used for partial deployment also, when part of working nodes are excluded from farm and updated with new software.
+This allows to avoid downtime.
 
