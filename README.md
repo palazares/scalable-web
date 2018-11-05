@@ -62,9 +62,9 @@ URI | HTTP Method | Content | Description
 ## Further improvements
 * [Actuator](https://www.baeldung.com/spring-boot-actuators) service for PROD monitoring 
 * Security consideration (SSL cert for api calls)
-* Use Mongo or Cassandra as NoSQL distributed data base
 * Docker for deployment
 * DEV/PROD profiles
 * Return revison number of DifferenceRecord in PUT response so that client might get an idea if he gets difference for his revision of document.
 Keep storing only only one revision - last one. 
+* MongoDB is NoSQL distributed data base. It supports easy scalability, eg with sharding. Choosing such DB we could make service more scalable in future.
 
