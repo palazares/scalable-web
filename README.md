@@ -57,7 +57,7 @@ URI | HTTP Method | Content | Description
 --- | --- | --- | ---
 `<host>/v1/diff/<ID>/left` | PUT | left Base64 encoded string  | Validate and store left doc
 `<host>/v1/diff/<ID>/right` | PUT | right Base64 encoded string  | Validate and store right doc
-`<host>/v1/diff/<ID>` | GET | -none- | Generates difference if valid parts are present 
+`<host>/v1/diff/<ID>` | GET | - | Generates difference if valid parts are present 
 
 ## Further improvements
 * [Actuator](https://www.baeldung.com/spring-boot-actuators) service for PROD monitoring 
