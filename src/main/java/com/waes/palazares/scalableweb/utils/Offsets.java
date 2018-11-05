@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -14,6 +15,11 @@ public final class Offsets {
         if(left.length < 1 || right.length < 1 || left.length != right.length){
             throw new UnsupportedOperationException("Can't compare offsets with zero or different length");
         }
+
+        if(Arrays.equals(left, right)){
+            return "Arrays are equals";
+        }
+
         List<Offset> offsets = new ArrayList<>();
         int startIndex = 0;
         int curLength = left[0] == right[0] ? 0 : 1;
@@ -35,7 +41,7 @@ public final class Offsets {
             }
         }
 
-        if(startIndex != 0 && curLength != 0){
+        if(curLength != 0){
             offsets.add(new Offset(startIndex, curLength));
         }
 

@@ -3,6 +3,7 @@ package com.waes.palazares.scalableweb.domain;
 import lombok.Data;
 import lombok.NonNull;
 
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -17,5 +18,6 @@ public class DifferenceRecord {
 
     private byte[] right;
 
+    @Embedded
     private DifferenceResult result;
 }

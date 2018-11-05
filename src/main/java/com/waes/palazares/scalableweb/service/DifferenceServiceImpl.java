@@ -6,10 +6,10 @@ import com.waes.palazares.scalableweb.domain.DifferenceType;
 import com.waes.palazares.scalableweb.exception.InavlidIdException;
 import com.waes.palazares.scalableweb.exception.InvalidBase64Exception;
 import com.waes.palazares.scalableweb.exception.InvalidRecordContentException;
+import com.waes.palazares.scalableweb.repository.DifferenceRepository;
 import com.waes.palazares.scalableweb.utils.Offsets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -19,7 +19,7 @@ import java.util.Base64;
 @Slf4j
 @RequiredArgsConstructor
 public class DifferenceServiceImpl implements DifferenceService {
-    private final CrudRepository<DifferenceRecord, String> repository;
+    private final DifferenceRepository repository;
 
     @Override
     public DifferenceRecord putRight(String id, String doc) throws InavlidIdException, InvalidBase64Exception {
@@ -36,22 +36,33 @@ public class DifferenceServiceImpl implements DifferenceService {
         log.debug("Get difference request with id: {}", id);
 
         if (id == null || id.trim().isEmpty()) {
+            log.debug("Get difference request has empty id");
             throw new InavlidIdException();
         }
 
         DifferenceRecord record = repository.findById(id).orElseThrow(InvalidRecordContentException::new);
-        record.setResult(compare(record));
-        return repository.save(record);
+
+        //No need to compare and save again if we already have a Result
+        if(record.getResult() == null) {
+            log.debug("Processing result for the record with id: {}", id);
+            record.setResult(compare(record));
+            return repository.save(record);
+        }
+
+        log.debug("Record with id: {} already has result: {}", id, record.getResult().getType());
+        return record;
     }
 
     private DifferenceRecord putRecord(String id, String doc, boolean isLeft) throws InavlidIdException, InvalidBase64Exception {
         log.debug("Put record request with id: {}", id);
 
         if (id == null || id.trim().isEmpty()) {
+            log.debug("Record request has empty id");
             throw new InavlidIdException();
         }
 
         if (doc == null || doc.trim().isEmpty()) {
+            log.debug("Record request with id: {} has empty content", id);
             throw new InvalidBase64Exception();
         }
 
@@ -59,14 +70,25 @@ public class DifferenceServiceImpl implements DifferenceService {
 
         DifferenceRecord record = repository.findById(id).orElse(new DifferenceRecord(id));
 
+        byte[] oldDoc;
         if(isLeft){
+            oldDoc = record.getLeft();
             record.setLeft(decodedDoc);
         }
         else{
+            oldDoc = record.getRight();
             record.setRight(decodedDoc);
         }
 
-        return repository.save(record);
+        //Nullify result and save new record if it differs from old one
+        if(!Arrays.equals(oldDoc, decodedDoc)){
+            log.debug("Nullifying result and saving record with id: {}", id);
+            record.setResult(null);
+            return repository.save(record);
+        }
+
+        log.debug("Record was unchanged after request with id: {}. Content is the same", id);
+        return record;
     }
 
     private byte[] decode(String doc) throws InvalidBase64Exception {
@@ -80,6 +102,7 @@ public class DifferenceServiceImpl implements DifferenceService {
 
     private DifferenceResult compare(DifferenceRecord record) throws InvalidRecordContentException {
         if (record.getLeft() == null || record.getRight() == null || record.getLeft().length < 1 || record.getRight().length < 1) {
+            log.debug("Record with id: {} doesn't have full date for comparison", record.getId());
             throw new InvalidRecordContentException();
         }
 
@@ -87,14 +110,17 @@ public class DifferenceServiceImpl implements DifferenceService {
         byte[] right = record.getRight();
 
         if (Arrays.equals(left, right)) {
+            log.debug("Record with id: {} has equal content", record.getId());
             return new DifferenceResult(DifferenceType.EQUALS, "Records are equal. Congratulations!");
         }
 
         if (left.length != right.length) {
+            log.debug("Record with id: {} has different size content", record.getId());
             return new DifferenceResult(DifferenceType.DIFFERENT_SIZE, "Records have different size. What a pity!");
         }
 
-        return new DifferenceResult(DifferenceType.DIFFERENT_CONTENT,"Records have the same size, but there are differences. Here they are: " +
+        log.debug("Record with id: {} has different content", record.getId());
+        return new DifferenceResult(DifferenceType.DIFFERENT_CONTENT,"Records have the same size, but content is different. Differences insight: " +
                 Offsets.getOffsetsMessage(left, right));
     }
 }
