@@ -1,22 +1,28 @@
 package com.waes.palazares.scalableweb.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import com.waes.palazares.scalableweb.domain.DifferenceRecord;
 import com.waes.palazares.scalableweb.domain.DifferenceResult;
 import com.waes.palazares.scalableweb.exception.InavlidIdException;
 import com.waes.palazares.scalableweb.exception.InvalidBase64Exception;
 import com.waes.palazares.scalableweb.exception.InvalidRecordContentException;
 import com.waes.palazares.scalableweb.service.DifferenceService;
+
 import io.swagger.annotations.Api;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
 
 /**
  * Difference endpoints controller.
  * Provides put endpoints to add left and right side document and get endpoint for difference
  */
-@Api(description = "Difference endpoints. Store base64 left and right strings, then get the difference")
+@Api("Difference endpoints. Store base64 left and right strings, then get the difference")
 @Controller
 @RequestMapping("v1/diff")
 public class DifferenceController {

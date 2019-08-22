@@ -1,5 +1,10 @@
 package com.waes.palazares.scalableweb.service;
 
+import java.util.Arrays;
+import java.util.Base64;
+
+import org.springframework.stereotype.Service;
+
 import com.waes.palazares.scalableweb.domain.DifferenceRecord;
 import com.waes.palazares.scalableweb.domain.DifferenceResult;
 import com.waes.palazares.scalableweb.domain.DifferenceType;
@@ -8,12 +13,9 @@ import com.waes.palazares.scalableweb.exception.InvalidBase64Exception;
 import com.waes.palazares.scalableweb.exception.InvalidRecordContentException;
 import com.waes.palazares.scalableweb.repository.DifferenceRepository;
 import com.waes.palazares.scalableweb.utils.Offsets;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
-import java.util.Base64;
 
 /**
  * Implementation of {@code DifferenceService} interface.
@@ -52,7 +54,7 @@ public class DifferenceServiceImpl implements DifferenceService {
             throw new InavlidIdException();
         }
 
-        DifferenceRecord record = repository.findById(id).orElseThrow(InvalidRecordContentException::new);
+        var record = repository.findById(id).orElseThrow(InvalidRecordContentException::new);
 
         //No need to compare and save again if we already have a Result
         if(record.getResult() == null) {
@@ -87,7 +89,7 @@ public class DifferenceServiceImpl implements DifferenceService {
             throw new InvalidBase64Exception();
         }
 
-        byte[] decodedDoc = decode(doc);
+        var decodedDoc = decode(doc);
 
         DifferenceRecord record = repository.findById(id).orElse(DifferenceRecord.builder().id(id).build());
 
@@ -126,8 +128,8 @@ public class DifferenceServiceImpl implements DifferenceService {
             throw new InvalidRecordContentException();
         }
 
-        byte[] left = record.getLeft();
-        byte[] right = record.getRight();
+        var left = record.getLeft();
+        var right = record.getRight();
 
         if (Arrays.equals(left, right)) {
             log.debug("Record with id: {} has equal content", record.getId());

@@ -1,13 +1,13 @@
 package com.waes.palazares.scalableweb.utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Utility class responsible for getting actual difference offsets of byte arrays.
@@ -33,8 +33,8 @@ public final class Offsets {
         }
 
         List<Offset> offsets = new ArrayList<>();
-        int startIndex = 0;
-        int curLength = left[0] == right[0] ? 0 : 1;
+        var startIndex = 0;
+        var curLength = left[0] == right[0] ? 0 : 1;
 
         for (int i = 1; i < left.length; i++) {
             if (left[i] != right[i]) {
