@@ -1,12 +1,12 @@
 package com.waes.palazares.scalableweb.controller;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Home endpoint redirects to the Swagger API documentation
  */
-@Controller
+@RestController
 public class HomeController {
 
     /**

@@ -16,6 +16,7 @@ import com.waes.palazares.scalableweb.utils.Offsets;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 /**
  * Implementation of {@code DifferenceService} interface.
@@ -28,12 +29,12 @@ public class DifferenceServiceImpl implements DifferenceService {
     private final DifferenceRepository repository;
 
     @Override
-    public DifferenceRecord putRight(String id, String doc) throws InavlidIdException, InvalidBase64Exception {
+    public Mono<DifferenceRecord> putRight(String id, String doc) throws InavlidIdException, InvalidBase64Exception {
         return putRecord(id, doc, false);
     }
 
     @Override
-    public DifferenceRecord putLeft(String id, String doc) throws InavlidIdException, InvalidBase64Exception {
+    public Mono<DifferenceRecord> putLeft(String id, String doc) throws InavlidIdException, InvalidBase64Exception {
         return putRecord(id, doc, true);
     }
 
@@ -46,7 +47,7 @@ public class DifferenceServiceImpl implements DifferenceService {
      * @throws InvalidRecordContentException when can't find record with provided id, only one side has been stored so far or record content is empty
      */
     @Override
-    public DifferenceRecord getDifference(String id) throws InvalidRecordContentException, InavlidIdException {
+    public Mono<DifferenceRecord> getDifference(String id) throws InvalidRecordContentException, InavlidIdException {
         log.debug("Get difference request with id: {}", id);
 
         if (id == null || id.trim().isEmpty()) {
@@ -59,11 +60,11 @@ public class DifferenceServiceImpl implements DifferenceService {
         //No need to compare and save again if we already have a Result
         if(record.getResult() == null) {
             log.debug("Processing result for the record with id: {}", id);
-            return repository.save(record.toBuilder().result(compare(record)).build());
+            return Mono.justOrEmpty(repository.save(record.toBuilder().result(compare(record)).build()));
         }
 
         log.debug("Record with id: {} already has result: {}", id, record.getResult().getType());
-        return record;
+        return Mono.just(record);
     }
 
     /**
@@ -76,7 +77,7 @@ public class DifferenceServiceImpl implements DifferenceService {
      * @throws InavlidIdException when id is empty or null
      * @throws InvalidBase64Exception when content is not valid base64 string
      */
-    private DifferenceRecord putRecord(String id, String doc, boolean isLeft) throws InavlidIdException, InvalidBase64Exception {
+    private Mono<DifferenceRecord> putRecord(String id, String doc, boolean isLeft) throws InavlidIdException, InvalidBase64Exception {
         log.debug("Put record request with id: {}", id);
 
         if (id == null || id.trim().isEmpty()) {
@@ -106,11 +107,11 @@ public class DifferenceServiceImpl implements DifferenceService {
         //Nullify result and save new record if it differs from old one
         if(!Arrays.equals(oldDoc, decodedDoc)){
             log.debug("Nullifying result and saving record with id: {}", id);
-            return repository.save(record.toBuilder().result(null).build());
+            return Mono.justOrEmpty(repository.save(record.toBuilder().result(null).build()));
         }
 
         log.debug("Record was unchanged after request with id: {}. Content is the same", id);
-        return record;
+        return Mono.just(record);
     }
 
     private byte[] decode(String doc) throws InvalidBase64Exception {

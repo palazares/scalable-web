@@ -1,12 +1,18 @@
 package com.waes.palazares.scalableweb.service;
 
-import com.waes.palazares.scalableweb.domain.DifferenceRecord;
-import com.waes.palazares.scalableweb.domain.DifferenceResult;
-import com.waes.palazares.scalableweb.domain.DifferenceType;
-import com.waes.palazares.scalableweb.exception.InavlidIdException;
-import com.waes.palazares.scalableweb.exception.InvalidBase64Exception;
-import com.waes.palazares.scalableweb.exception.InvalidRecordContentException;
-import com.waes.palazares.scalableweb.repository.DifferenceRepository;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Base64;
+import java.util.Optional;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
@@ -14,15 +20,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Base64;
-import java.util.Optional;
-
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.waes.palazares.scalableweb.domain.DifferenceRecord;
+import com.waes.palazares.scalableweb.domain.DifferenceResult;
+import com.waes.palazares.scalableweb.domain.DifferenceType;
+import com.waes.palazares.scalableweb.exception.InavlidIdException;
+import com.waes.palazares.scalableweb.exception.InvalidBase64Exception;
+import com.waes.palazares.scalableweb.exception.InvalidRecordContentException;
+import com.waes.palazares.scalableweb.repository.DifferenceRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DifferenceServiceImplTest {
@@ -270,7 +274,7 @@ public class DifferenceServiceImplTest {
                 .build();
         //when
         when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
-        DifferenceRecord difference = diffService.putRight(testId, Base64.getEncoder().encodeToString(rightContent));
+        DifferenceRecord difference = diffService.putRight(testId, Base64.getEncoder().encodeToString(rightContent)).block();
         //then
         verify(repository).findById(eq(testId));
         verify(repository, times(0)).save(any());
@@ -292,7 +296,7 @@ public class DifferenceServiceImplTest {
                 .build();
         //when
         when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
-        DifferenceRecord difference = diffService.putLeft(testId, Base64.getEncoder().encodeToString(leftContent));
+        DifferenceRecord difference = diffService.putLeft(testId, Base64.getEncoder().encodeToString(leftContent)).block();
         //then
         verify(repository).findById(eq(testId));
         verify(repository, times(0)).save(any());
@@ -389,7 +393,7 @@ public class DifferenceServiceImplTest {
                 .build();
         //when
         when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
-        DifferenceRecord difference = diffService.getDifference(testId);
+        DifferenceRecord difference = diffService.getDifference(testId).block();
         //then
         verify(repository).findById(eq(testId));
         verify(repository, times(0)).save(any());
@@ -409,7 +413,7 @@ public class DifferenceServiceImplTest {
                 .build();
         //when
         when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
-        DifferenceRecord difference = diffService.getDifference(testId);
+        DifferenceRecord difference = diffService.getDifference(testId).block();
         //then
         verify(repository).findById(eq(testId));
         verify(repository, times(0)).save(any());
