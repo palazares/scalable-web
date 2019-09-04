@@ -15,13 +15,14 @@ import com.waes.palazares.scalableweb.exception.InvalidBase64Exception;
 import com.waes.palazares.scalableweb.exception.InvalidRecordContentException;
 import com.waes.palazares.scalableweb.service.DifferenceService;
 
+import io.swagger.annotations.Api;
 import reactor.core.publisher.Mono;
 
 /**
  * Difference endpoints controller.
  * Provides put endpoints to add left and right side document and get endpoint for difference
  */
-//@Api("Difference endpoints. Store base64 left and right strings, then get the difference")
+@Api("Difference endpoints. Store base64 left and right strings, then get the difference")
 @RestController
 @RequestMapping("v1/diff")
 public class DifferenceController {

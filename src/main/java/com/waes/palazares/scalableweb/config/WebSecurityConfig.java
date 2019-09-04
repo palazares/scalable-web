@@ -30,8 +30,8 @@ public class WebSecurityConfig {
         http.csrf()
                 .disable()
                 .authorizeExchange()
-                .anyExchange()
-                .hasRole("ADMIN")
+                .pathMatchers("v1/diff/*").hasRole("ADMIN")
+                .anyExchange().permitAll()
                 .and()
                 .httpBasic();
         return http.build();

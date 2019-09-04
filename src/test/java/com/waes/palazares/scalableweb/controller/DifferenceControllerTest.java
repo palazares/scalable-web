@@ -95,4 +95,10 @@ public class DifferenceControllerTest {
 
         verify(differenceService, times(1)).getDifference(testId);
     }
+
+    @Test
+    public void shouldRedirectToSwaggerUI() {
+        client.mutateWith(csrf()).get().uri("/").exchange()
+                .expectStatus().is3xxRedirection();
+    }
 }
