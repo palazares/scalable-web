@@ -3,28 +3,27 @@ package com.waes.palazares.scalableweb.controller;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.waes.palazares.scalableweb.service.DifferenceService;
 
+@WithMockUser(roles = "ADMIN")
 @RunWith(SpringRunner.class)
-@WebMvcTest(HomeController.class)
-@ActiveProfiles("test")
+@WebFluxTest(controllers = DifferenceController.class)
 public class HomeControllerTest {
     @Autowired
-    private MockMvc mvc;
+    WebTestClient client;
+
+    @MockBean
+    private DifferenceService differenceService;
 
     @Test
-    public void shouldRedirectToSwaggerUI() throws Exception {
-        mvc.perform(get("/"))
-                .andDo(print())
-                .andExpect(status().is3xxRedirection())
-                .andExpect(MockMvcResultMatchers.redirectedUrl("swagger-ui.html"));
+    public void shouldRedirectToSwaggerUI() {
+        client.get().uri("/").exchange()
+                .expectStatus().is3xxRedirection();
     }
 }

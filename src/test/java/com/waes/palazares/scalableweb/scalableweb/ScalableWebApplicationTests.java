@@ -1,8 +1,13 @@
 package com.waes.palazares.scalableweb.scalableweb;
 
-import com.waes.palazares.scalableweb.domain.DifferenceRecord;
-import com.waes.palazares.scalableweb.domain.DifferenceResult;
-import com.waes.palazares.scalableweb.domain.DifferenceType;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Base64;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,16 +18,16 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Base64;
-
-import static org.junit.Assert.*;
+import com.waes.palazares.scalableweb.domain.DifferenceRecord;
+import com.waes.palazares.scalableweb.domain.DifferenceResult;
+import com.waes.palazares.scalableweb.domain.DifferenceType;
 
 @RunWith(SpringRunner.class)
+@WithMockUser(roles = "ADMIN")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
 public class ScalableWebApplicationTests {
 	@LocalServerPort
 	private int localPort;
