@@ -11,7 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Base64;
-import java.util.Optional;
+import java.util.Objects;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +28,9 @@ import com.waes.palazares.scalableweb.exception.InvalidBase64Exception;
 import com.waes.palazares.scalableweb.exception.InvalidRecordContentException;
 import com.waes.palazares.scalableweb.repository.DifferenceRepository;
 
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
 @RunWith(MockitoJUnitRunner.class)
 public class DifferenceServiceImplTest {
     @InjectMocks
@@ -36,84 +39,128 @@ public class DifferenceServiceImplTest {
     @Mock
     private DifferenceRepository repository;
 
-    @Test(expected = InavlidIdException.class)
-    public void shouldThrowInvalidIdWhenLeftIdIsNull() throws InavlidIdException, InvalidBase64Exception {
-        diffService.putLeft(null, null);
+    @Test
+    public void shouldThrowInvalidIdWhenLeftIdIsNull() {
+        StepVerifier
+                .create(diffService.putLeft(null, null))
+                .expectError(InavlidIdException.class)
+                .verify();
     }
 
-    @Test(expected = InavlidIdException.class)
-    public void shouldThrowInvalidIdWhenLeftIdIsEmpty() throws InavlidIdException, InvalidBase64Exception {
-        diffService.putLeft("", null);
+    @Test
+    public void shouldThrowInvalidIdWhenLeftIdIsEmpty() {
+        StepVerifier
+                .create(diffService.putLeft("", null))
+                .expectError(InavlidIdException.class)
+                .verify();
     }
 
-    @Test(expected = InavlidIdException.class)
-    public void shouldThrowInvalidIdWhenRightIdIsNull() throws InavlidIdException, InvalidBase64Exception {
-        diffService.putRight(null, null);
+    @Test
+    public void shouldThrowInvalidIdWhenRightIdIsNull() {
+        StepVerifier
+                .create(diffService.putRight(null, null))
+                .expectError(InavlidIdException.class)
+                .verify();
     }
 
-    @Test(expected = InavlidIdException.class)
-    public void shouldThrowInvalidIdWhenRightIdIsEmpty() throws InavlidIdException, InvalidBase64Exception {
-        diffService.putRight("", null);
+    @Test
+    public void shouldThrowInvalidIdWhenRightIdIsEmpty() {
+        StepVerifier
+                .create(diffService.putRight("", null))
+                .expectError(InavlidIdException.class)
+                .verify();
     }
 
-    @Test(expected = InavlidIdException.class)
-    public void shouldThrowInvalidIdWhenDifIdIsNull() throws InavlidIdException, InvalidRecordContentException {
-        diffService.getDifference(null);
+    @Test
+    public void shouldThrowInvalidIdWhenDifIdIsNull() {
+        StepVerifier
+                .create(diffService.getDifference(null))
+                .expectError(InavlidIdException.class)
+                .verify();
     }
 
-    @Test(expected = InavlidIdException.class)
-    public void shouldThrowInvalidIdWhenDifIdIsEmpty() throws InavlidIdException, InvalidRecordContentException {
-        diffService.getDifference("");
+    @Test
+    public void shouldThrowInvalidIdWhenDifIdIsEmpty() {
+        StepVerifier
+                .create(diffService.getDifference(""))
+                .expectError(InavlidIdException.class)
+                .verify();
     }
 
-    @Test(expected = InvalidBase64Exception.class)
-    public void shouldThrowInvalidBase64WhenLeftDocIsNull() throws InavlidIdException, InvalidBase64Exception {
-        diffService.putLeft("testID", null);
+    @Test
+    public void shouldThrowInvalidBase64WhenLeftDocIsNull() {
+        StepVerifier
+                .create(diffService.putLeft("testID", null))
+                .expectError(InvalidBase64Exception.class)
+                .verify();
     }
 
-    @Test(expected = InvalidBase64Exception.class)
-    public void shouldThrowInvalidBase64WhenLeftDocIsEmpty() throws InavlidIdException, InvalidBase64Exception {
-        diffService.putLeft("testID", "");
+    @Test
+    public void shouldThrowInvalidBase64WhenLeftDocIsEmpty() {
+        StepVerifier
+                .create(diffService.putLeft("testID", ""))
+                .expectError(InvalidBase64Exception.class)
+                .verify();
     }
 
-    @Test(expected = InvalidBase64Exception.class)
-    public void shouldThrowInvalidBase64WhenLeftDocIsInvalidBase64() throws InavlidIdException, InvalidBase64Exception {
-        diffService.putLeft("testID", "_- &^%");
+    @Test
+    public void shouldThrowInvalidBase64WhenLeftDocIsInvalidBase64() {
+        when(repository.findById(eq("testID"))).thenReturn(Mono.just(DifferenceRecord.builder().build()));
+        StepVerifier
+                .create(diffService.putLeft("testID", "_- &^%"))
+                .expectError(InvalidBase64Exception.class)
+                .verify();
     }
 
-    @Test(expected = InvalidBase64Exception.class)
-    public void shouldThrowInvalidBase64WhenRightDocIsNull() throws InavlidIdException, InvalidBase64Exception {
-        diffService.putLeft("testID", null);
+    @Test
+    public void shouldThrowInvalidBase64WhenRightDocIsNull() {
+        StepVerifier
+                .create(diffService.putRight("testID", null))
+                .expectError(InvalidBase64Exception.class)
+                .verify();
     }
 
-    @Test(expected = InvalidBase64Exception.class)
-    public void shouldThrowInvalidBase64WhenRightDocIsEmpty() throws InavlidIdException, InvalidBase64Exception {
-        diffService.putLeft("testID", "");
+    @Test
+    public void shouldThrowInvalidBase64WhenRightDocIsEmpty() {
+        StepVerifier
+                .create(diffService.putLeft("testID", ""))
+                .expectError(InvalidBase64Exception.class)
+                .verify();
     }
 
-    @Test(expected = InvalidBase64Exception.class)
-    public void shouldThrowInvalidBase64WhenRightDocIsInvalidBase64() throws InavlidIdException, InvalidBase64Exception {
-        diffService.putLeft("testID", "_- &^%");
+    @Test
+    public void shouldThrowInvalidBase64WhenRightDocIsInvalidBase64() {
+        when(repository.findById(eq("testID"))).thenReturn(Mono.just(DifferenceRecord.builder().build()));
+        StepVerifier
+                .create(diffService.putRight("testID", "_- &^%"))
+                .expectError(InvalidBase64Exception.class)
+                .verify();
     }
 
-    @Test(expected = InvalidRecordContentException.class)
-    public void shouldThrowInvalidRecordContentWhenRecordWasNotFound() throws InavlidIdException, InvalidRecordContentException {
+    @Test
+    public void shouldThrowInvalidRecordContentWhenRecordWasNotFound() {
         //when
-        when(repository.findById(eq("testID"))).thenReturn(Optional.empty());
-        diffService.getDifference("testID");
+        when(repository.findById(eq("testID"))).thenReturn(Mono.empty());
+        StepVerifier
+                .create(diffService.getDifference("testID"))
+                .expectError(InvalidRecordContentException.class)
+                .verify();
     }
 
-    @Test(expected = InvalidRecordContentException.class)
-    public void shouldThrowInvalidRecordContentWhenRightDocIsNull() throws InavlidIdException, InvalidRecordContentException {
+    @Test
+    public void shouldThrowInvalidRecordContentWhenRightDocIsNull() {
         //given
         DifferenceRecord testIdRecord = DifferenceRecord.builder().id("testID").left("content".getBytes()).build();
         //when
-        when(repository.findById(eq("testID"))).thenReturn(Optional.of(testIdRecord));
-        diffService.getDifference("testID");
+        when(repository.findById(eq("testID"))).thenReturn(Mono.just(testIdRecord));
+        StepVerifier
+                .create(diffService.getDifference("testID"))
+                .expectError(InvalidRecordContentException.class)
+                .verify();
     }
 
-    @Test(expected = InvalidRecordContentException.class)
-    public void shouldThrowInvalidRecordContentWhenRightDocIsEmpty() throws InavlidIdException, InvalidRecordContentException {
+    @Test
+    public void shouldThrowInvalidRecordContentWhenRightDocIsEmpty() {
         //given
         DifferenceRecord testIdRecord = DifferenceRecord.builder()
                 .id("testID")
@@ -121,24 +168,30 @@ public class DifferenceServiceImplTest {
                 .right(new byte[0])
                 .build();
         //when
-        when(repository.findById(eq("testID"))).thenReturn(Optional.of(testIdRecord));
-        diffService.getDifference("testID");
+        when(repository.findById(eq("testID"))).thenReturn(Mono.just(testIdRecord));
+        StepVerifier
+                .create(diffService.getDifference("testID"))
+                .expectError(InvalidRecordContentException.class)
+                .verify();
     }
 
-    @Test(expected = InvalidRecordContentException.class)
-    public void shouldThrowInvalidRecordContentWhenLeftDocIsNull() throws InavlidIdException, InvalidRecordContentException {
+    @Test
+    public void shouldThrowInvalidRecordContentWhenLeftDocIsNull() {
         //given
         DifferenceRecord testIdRecord = DifferenceRecord.builder()
                 .id("testID")
                 .right("content".getBytes())
                 .build();
         //when
-        when(repository.findById(eq("testID"))).thenReturn(Optional.of(testIdRecord));
-        diffService.getDifference("testID");
+        when(repository.findById(eq("testID"))).thenReturn(Mono.just(testIdRecord));
+        StepVerifier
+                .create(diffService.getDifference("testID"))
+                .expectError(InvalidRecordContentException.class)
+                .verify();
     }
 
-    @Test(expected = InvalidRecordContentException.class)
-    public void shouldThrowInvalidRecordContentWhenLeftDocIsEmpty() throws InavlidIdException, InvalidRecordContentException {
+    @Test
+    public void shouldThrowInvalidRecordContentWhenLeftDocIsEmpty() {
         //given
         DifferenceRecord testIdRecord = DifferenceRecord.builder()
                 .id("testID")
@@ -146,18 +199,26 @@ public class DifferenceServiceImplTest {
                 .left(new byte[0])
                 .build();
         //when
-        when(repository.findById(eq("testID"))).thenReturn(Optional.of(testIdRecord));
-        diffService.getDifference("testID");
+        when(repository.findById(eq("testID"))).thenReturn(Mono.just(testIdRecord));
+        StepVerifier
+                .create(diffService.getDifference("testID"))
+                .expectError(InvalidRecordContentException.class)
+                .verify();
     }
 
     @Test
-    public void shouldNotFailWhenCorrectBase64() throws InavlidIdException, InvalidBase64Exception {
+    public void shouldNotFailWhenCorrectBase64() {
         //given
         String testId = "testID";
         String leftContent = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
         //when
-        when(repository.findById(eq(testId))).thenReturn(Optional.empty());
-        diffService.putLeft(testId, leftContent);
+        when(repository.findById(eq(testId))).thenReturn(Mono.empty());
+        when(repository.save(any())).thenReturn(Mono.just(DifferenceRecord.builder().build()));
+        StepVerifier
+                .create(diffService.putLeft(testId, leftContent))
+                .expectNextMatches(Objects::nonNull)
+                .expectComplete()
+                .verify();
         //then
         verify(repository).findById(eq(testId));
         verify(repository).save(ArgumentMatchers.argThat(arg -> {
@@ -170,13 +231,18 @@ public class DifferenceServiceImplTest {
     }
 
     @Test
-    public void shouldSaveNewRecordWhenLeftDoc() throws InavlidIdException, InvalidBase64Exception {
+    public void shouldSaveNewRecordWhenLeftDoc() {
         //given
         String testId = "testID";
         byte[] leftContent = "testContent".getBytes();
         //when
-        when(repository.findById(eq(testId))).thenReturn(Optional.empty());
-        diffService.putLeft(testId, Base64.getEncoder().encodeToString(leftContent));
+        when(repository.findById(eq(testId))).thenReturn(Mono.empty());
+        when(repository.save(any())).thenReturn(Mono.just(DifferenceRecord.builder().build()));
+        StepVerifier
+                .create(diffService.putLeft(testId, Base64.getEncoder().encodeToString(leftContent)))
+                .expectNextMatches(Objects::nonNull)
+                .expectComplete()
+                .verify();
         //then
         verify(repository).findById(eq(testId));
         verify(repository).save(ArgumentMatchers.argThat(arg -> {
@@ -189,13 +255,18 @@ public class DifferenceServiceImplTest {
     }
 
     @Test
-    public void shouldSaveNewRecordWhenRightDoc() throws InavlidIdException, InvalidBase64Exception {
+    public void shouldSaveNewRecordWhenRightDoc() {
         //given
         String testId = "testID";
         byte[] rightContent = "testContent".getBytes();
         //when
-        when(repository.findById(eq(testId))).thenReturn(Optional.empty());
-        diffService.putRight(testId, Base64.getEncoder().encodeToString(rightContent));
+        when(repository.findById(eq(testId))).thenReturn(Mono.empty());
+        when(repository.save(any())).thenReturn(Mono.just(DifferenceRecord.builder().build()));
+        StepVerifier
+                .create(diffService.putRight(testId, Base64.getEncoder().encodeToString(rightContent)))
+                .expectNextMatches(Objects::nonNull)
+                .expectComplete()
+                .verify();
         //then
         verify(repository).findById(eq(testId));
         verify(repository).save(ArgumentMatchers.argThat(arg -> {
@@ -208,7 +279,7 @@ public class DifferenceServiceImplTest {
     }
 
     @Test
-    public void shouldUpdateRecordWhenLeftDoc() throws InavlidIdException, InvalidBase64Exception {
+    public void shouldUpdateRecordWhenLeftDoc() {
         //given
         String testId = "testID";
         byte[] leftContent = "leftTestContent".getBytes();
@@ -220,8 +291,13 @@ public class DifferenceServiceImplTest {
                 .result(DifferenceResult.builder().type(DifferenceType.DIFFERENT_SIZE).message("testResult").build())
                 .build();
         //when
-        when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
-        diffService.putLeft(testId, Base64.getEncoder().encodeToString(leftContent));
+        when(repository.findById(eq(testId))).thenReturn(Mono.just(differenceRecord));
+        when(repository.save(any())).thenReturn(Mono.just(DifferenceRecord.builder().build()));
+        StepVerifier
+                .create(diffService.putLeft(testId, Base64.getEncoder().encodeToString(leftContent)))
+                .expectNextMatches(Objects::nonNull)
+                .expectComplete()
+                .verify();
         //then
         verify(repository).findById(eq(testId));
         verify(repository).save(ArgumentMatchers.argThat(arg -> {
@@ -234,7 +310,7 @@ public class DifferenceServiceImplTest {
     }
 
     @Test
-    public void shouldUpdateRecordWhenRightDoc() throws InavlidIdException, InvalidBase64Exception {
+    public void shouldUpdateRecordWhenRightDoc() {
         //given
         String testId = "testID";
         byte[] leftContent = "leftTestContent".getBytes();
@@ -246,8 +322,14 @@ public class DifferenceServiceImplTest {
                 .result(DifferenceResult.builder().type(DifferenceType.DIFFERENT_SIZE).message("testResult").build())
                 .build();
         //when
-        when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
-        diffService.putRight(testId, Base64.getEncoder().encodeToString(rightContent));
+        when(repository.findById(eq(testId))).thenReturn(Mono.just(differenceRecord));
+        when(repository.save(any())).thenReturn(Mono.just(DifferenceRecord.builder().build()));
+        StepVerifier
+                .create(diffService.putRight(testId, Base64.getEncoder().encodeToString(rightContent)))
+                .expectNextMatches(Objects::nonNull)
+                .expectComplete()
+                .verify();
+        ;
         //then
         verify(repository).findById(eq(testId));
         verify(repository).save(ArgumentMatchers.argThat(arg -> {
@@ -260,7 +342,7 @@ public class DifferenceServiceImplTest {
     }
 
     @Test
-    public void shouldNotUpdateRecordResultWhenRightDocIsTheSame() throws InavlidIdException, InvalidBase64Exception {
+    public void shouldNotUpdateRecordResultWhenRightDocIsTheSame() {
         //given
         String testId = "testID";
         byte[] leftContent = "leftTestContent".getBytes();
@@ -273,16 +355,19 @@ public class DifferenceServiceImplTest {
                 .result(testResult)
                 .build();
         //when
-        when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
-        DifferenceRecord difference = diffService.putRight(testId, Base64.getEncoder().encodeToString(rightContent)).block();
+        when(repository.findById(eq(testId))).thenReturn(Mono.just(differenceRecord));
+        StepVerifier
+                .create(diffService.putRight(testId, Base64.getEncoder().encodeToString(rightContent)))
+                .expectNextMatches(x -> x.equals(differenceRecord))
+                .expectComplete()
+                .verify();
         //then
         verify(repository).findById(eq(testId));
         verify(repository, times(0)).save(any());
-        assertEquals(differenceRecord, difference);
     }
 
     @Test
-    public void shouldNotUpdateRecordResultWhenLeftDocIsTheSame() throws InavlidIdException, InvalidBase64Exception {
+    public void shouldNotUpdateRecordResultWhenLeftDocIsTheSame() {
         //given
         String testId = "testID";
         byte[] leftContent = "leftTestContent".getBytes();
@@ -295,16 +380,19 @@ public class DifferenceServiceImplTest {
                 .result(testResult)
                 .build();
         //when
-        when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
-        DifferenceRecord difference = diffService.putLeft(testId, Base64.getEncoder().encodeToString(leftContent)).block();
+        when(repository.findById(eq(testId))).thenReturn(Mono.just(differenceRecord));
+        StepVerifier
+                .create(diffService.putLeft(testId, Base64.getEncoder().encodeToString(leftContent)))
+                .expectNextMatches(x -> x.equals(differenceRecord))
+                .expectComplete()
+                .verify();
         //then
         verify(repository).findById(eq(testId));
         verify(repository, times(0)).save(any());
-        assertEquals(differenceRecord, difference);
     }
 
     @Test
-    public void shouldReturnEqualResultWhenDocsAreTheSame() throws InavlidIdException, InvalidRecordContentException {
+    public void shouldReturnEqualResultWhenDocsAreTheSame() {
         //given
         String testId = "testID";
         byte[] equalContent = "equalTestContent".getBytes();
@@ -314,8 +402,13 @@ public class DifferenceServiceImplTest {
                 .right(equalContent)
                 .build();
         //when
-        when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
-        diffService.getDifference(testId);
+        when(repository.findById(eq(testId))).thenReturn(Mono.just(differenceRecord));
+        when(repository.save(any())).thenReturn(Mono.just(DifferenceRecord.builder().build()));
+        StepVerifier
+                .create(diffService.getDifference(testId))
+                .expectNextMatches(Objects::nonNull)
+                .expectComplete()
+                .verify();
         //then
         verify(repository).findById(eq(testId));
         verify(repository).save(ArgumentMatchers.argThat(arg -> {
@@ -329,7 +422,7 @@ public class DifferenceServiceImplTest {
     }
 
     @Test
-    public void shouldReturnDifferentSizeResultWhenDocsAreDifferent() throws InavlidIdException, InvalidRecordContentException {
+    public void shouldReturnDifferentSizeResultWhenDocsAreDifferent() {
         //given
         String testId = "testID";
         byte[] leftContent = "leftTestContent".getBytes();
@@ -340,10 +433,16 @@ public class DifferenceServiceImplTest {
                 .right(rightContent)
                 .build();
         //when
-        when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
-        diffService.getDifference(testId);
+        when(repository.findById(eq(testId))).thenReturn(Mono.just(differenceRecord));
+        when(repository.save(any())).thenReturn(Mono.just(DifferenceRecord.builder().build()));
+        StepVerifier
+                .create(diffService.getDifference(testId))
+                .expectNextMatches(Objects::nonNull)
+                .expectComplete()
+                .verify();
         //then
         verify(repository).findById(eq(testId));
+        verify(repository).save(any());
         verify(repository).save(ArgumentMatchers.argThat(arg -> {
             assertEquals(testId, arg.getId());
             assertArrayEquals(leftContent, arg.getLeft());
@@ -355,7 +454,7 @@ public class DifferenceServiceImplTest {
     }
 
     @Test
-    public void shouldReturnDifferentContentResultWhenDocsContentsAreDifferent() throws InavlidIdException, InvalidRecordContentException {
+    public void shouldReturnDifferentContentResultWhenDocsContentsAreDifferent() {
         //given
         String testId = "testID";
         byte[] leftContent = "leftTestContent".getBytes();
@@ -366,8 +465,13 @@ public class DifferenceServiceImplTest {
                 .right(rightContent)
                 .build();
         //when
-        when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
-        diffService.getDifference(testId);
+        when(repository.findById(eq(testId))).thenReturn(Mono.just(differenceRecord));
+        when(repository.save(any())).thenReturn(Mono.just(DifferenceRecord.builder().build()));
+        StepVerifier
+                .create(diffService.getDifference(testId))
+                .expectNextMatches(Objects::nonNull)
+                .expectComplete()
+                .verify();
         //then
         verify(repository).findById(eq(testId));
         verify(repository).save(ArgumentMatchers.argThat(arg -> {
@@ -381,7 +485,7 @@ public class DifferenceServiceImplTest {
     }
 
     @Test
-    public void shouldNotSaveWhenLeftDocIsTheSame() throws InavlidIdException, InvalidRecordContentException {
+    public void shouldNotSaveWhenLeftDocIsTheSame() {
         //given
         String testId = "testID";
         byte[] equalContent = "equalTestContent".getBytes();
@@ -392,16 +496,19 @@ public class DifferenceServiceImplTest {
                 .result(DifferenceResult.builder().type(DifferenceType.EQUALS).message("equals").build())
                 .build();
         //when
-        when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
-        DifferenceRecord difference = diffService.getDifference(testId).block();
+        when(repository.findById(eq(testId))).thenReturn(Mono.just(differenceRecord));
+        StepVerifier
+                .create(diffService.getDifference(testId))
+                .expectNextMatches(x -> x.equals(differenceRecord))
+                .expectComplete()
+                .verify();
         //then
         verify(repository).findById(eq(testId));
         verify(repository, times(0)).save(any());
-        assertEquals(differenceRecord, difference);
     }
 
     @Test
-    public void shouldNotCompareWhenResultExists() throws InavlidIdException, InvalidRecordContentException {
+    public void shouldNotCompareWhenResultExists() {
         //given
         String testId = "testID";
         byte[] equalContent = "equalTestContent".getBytes();
@@ -412,11 +519,14 @@ public class DifferenceServiceImplTest {
                 .result(DifferenceResult.builder().type(DifferenceType.EQUALS).message("equals").build())
                 .build();
         //when
-        when(repository.findById(eq(testId))).thenReturn(Optional.of(differenceRecord));
-        DifferenceRecord difference = diffService.getDifference(testId).block();
+        when(repository.findById(eq(testId))).thenReturn(Mono.just(differenceRecord));
+        StepVerifier
+                .create(diffService.getDifference(testId))
+                .expectNextMatches(x -> x.equals(differenceRecord))
+                .expectComplete()
+                .verify();
         //then
         verify(repository).findById(eq(testId));
         verify(repository, times(0)).save(any());
-        assertEquals(differenceRecord, difference);
     }
 }

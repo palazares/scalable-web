@@ -29,12 +29,12 @@ public class DifferenceServiceImpl implements DifferenceService {
     private final DifferenceRepository repository;
 
     @Override
-    public Mono<DifferenceRecord> putRight(String id, String doc) throws InavlidIdException, InvalidBase64Exception {
+    public Mono<DifferenceRecord> putRight(String id, String doc) {
         return putRecord(id, doc, false);
     }
 
     @Override
-    public Mono<DifferenceRecord> putLeft(String id, String doc) throws InavlidIdException, InvalidBase64Exception {
+    public Mono<DifferenceRecord> putLeft(String id, String doc) {
         return putRecord(id, doc, true);
     }
 
@@ -43,28 +43,23 @@ public class DifferenceServiceImpl implements DifferenceService {
      *
      * @param id document id
      * @return difference result
-     * @throws InavlidIdException when id is empty or null
-     * @throws InvalidRecordContentException when can't find record with provided id, only one side has been stored so far or record content is empty
      */
     @Override
-    public Mono<DifferenceRecord> getDifference(String id) throws InvalidRecordContentException, InavlidIdException {
+    public Mono<DifferenceRecord> getDifference(String id) {
         log.debug("Get difference request with id: {}", id);
 
         if (id == null || id.trim().isEmpty()) {
             log.debug("Get difference request has empty id");
-            throw new InavlidIdException();
+            return Mono.error(new InavlidIdException());
         }
 
-        var record = repository.findById(id).orElseThrow(InvalidRecordContentException::new);
+        var record = repository.findById(id).switchIfEmpty(Mono.error(new InvalidRecordContentException()));
+        var yesResultRecord = record.filter(r -> r.getResult() != null);
 
-        //No need to compare and save again if we already have a Result
-        if(record.getResult() == null) {
-            log.debug("Processing result for the record with id: {}", id);
-            return Mono.justOrEmpty(repository.save(record.toBuilder().result(compare(record)).build()));
-        }
-
-        log.debug("Record with id: {} already has result: {}", id, record.getResult().getType());
-        return Mono.just(record);
+        return yesResultRecord
+                .switchIfEmpty(record
+                        .flatMap(rec -> compare(rec).map(x -> rec.toBuilder().result(x).build()))
+                        .flatMap(repository::save));
     }
 
     /**
@@ -74,59 +69,46 @@ public class DifferenceServiceImpl implements DifferenceService {
      * @param doc base64 encoded document
      * @param isLeft document side
      * @return persisted difference record
-     * @throws InavlidIdException when id is empty or null
-     * @throws InvalidBase64Exception when content is not valid base64 string
      */
-    private Mono<DifferenceRecord> putRecord(String id, String doc, boolean isLeft) throws InavlidIdException, InvalidBase64Exception {
+    private Mono<DifferenceRecord> putRecord(String id, String doc, boolean isLeft) {
         log.debug("Put record request with id: {}", id);
 
         if (id == null || id.trim().isEmpty()) {
             log.debug("Record request has empty id");
-            throw new InavlidIdException();
+            return Mono.error(new InavlidIdException());
         }
 
         if (doc == null || doc.trim().isEmpty()) {
             log.debug("Record request with id: {} has empty content", id);
-            throw new InvalidBase64Exception();
+            return Mono.error(new InvalidBase64Exception());
         }
 
         var decodedDoc = decode(doc);
+        var record = repository.findById(id).defaultIfEmpty(DifferenceRecord.builder().id(id).build());
 
-        DifferenceRecord record = repository.findById(id).orElse(DifferenceRecord.builder().id(id).build());
+        var sameDocRecord = decodedDoc.flatMap(d ->
+                record.filter(rec -> isLeft ? Arrays.equals(rec.getLeft(), d) : Arrays.equals(rec.getRight(), d)));
 
-        byte[] oldDoc;
-        if(isLeft){
-            oldDoc = record.getLeft();
-            record = record.toBuilder().left(decodedDoc).build();
-        }
-        else{
-            oldDoc = record.getRight();
-            record = record.toBuilder().right(decodedDoc).build();
-        }
-
-        //Nullify result and save new record if it differs from old one
-        if(!Arrays.equals(oldDoc, decodedDoc)){
-            log.debug("Nullifying result and saving record with id: {}", id);
-            return Mono.justOrEmpty(repository.save(record.toBuilder().result(null).build()));
-        }
-
-        log.debug("Record was unchanged after request with id: {}. Content is the same", id);
-        return Mono.just(record);
+        return sameDocRecord.switchIfEmpty(
+                decodedDoc.flatMap(d -> record
+                        .map(rec -> isLeft ? rec.toBuilder().left(d).build() : rec.toBuilder().right(d).build()))
+                        .map(rec -> rec.toBuilder().result(null).build())
+                        .flatMap(repository::save));
     }
 
-    private byte[] decode(String doc) throws InvalidBase64Exception {
+    private Mono<byte[]> decode(String doc) {
         try {
-            return Base64.getDecoder().decode(doc);
+            return Mono.just(Base64.getDecoder().decode(doc));
         } catch (IllegalArgumentException e) {
             log.debug("Not valid base64 string: {}", doc, e);
-            throw new InvalidBase64Exception();
+            return Mono.error(new InvalidBase64Exception());
         }
     }
 
-    private DifferenceResult compare(DifferenceRecord record) throws InvalidRecordContentException {
+    private Mono<DifferenceResult> compare(DifferenceRecord record) {
         if (record.getLeft() == null || record.getRight() == null || record.getLeft().length < 1 || record.getRight().length < 1) {
             log.debug("Record with id: {} doesn't have full date for comparison", record.getId());
-            throw new InvalidRecordContentException();
+            return Mono.error(new InvalidRecordContentException());
         }
 
         var left = record.getLeft();
@@ -134,18 +116,18 @@ public class DifferenceServiceImpl implements DifferenceService {
 
         if (Arrays.equals(left, right)) {
             log.debug("Record with id: {} has equal content", record.getId());
-            return DifferenceResult.builder().type(DifferenceType.EQUALS).message("Records are equal. Congratulations!").build();
+            return Mono.just(DifferenceResult.builder().type(DifferenceType.EQUALS).message("Records are equal. Congratulations!").build());
         }
 
         if (left.length != right.length) {
             log.debug("Record with id: {} has different size content", record.getId());
-            return DifferenceResult.builder().type(DifferenceType.DIFFERENT_SIZE).message("Records have different size. What a pity!").build();
+            return Mono.just(DifferenceResult.builder().type(DifferenceType.DIFFERENT_SIZE).message("Records have different size. What a pity!").build());
         }
 
         log.debug("Record with id: {} has different content", record.getId());
-        return DifferenceResult.builder()
+        return Mono.just(DifferenceResult.builder()
                 .type(DifferenceType.DIFFERENT_CONTENT)
                 .message("Records have the same size, but content is different. Differences insight: " + Offsets.getOffsetsMessage(left, right))
-                .build();
+                .build());
     }
 }
