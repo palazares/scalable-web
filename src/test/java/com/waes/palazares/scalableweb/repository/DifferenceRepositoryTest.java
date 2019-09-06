@@ -10,12 +10,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.waes.palazares.scalableweb.domain.DifferenceRecord;
 import com.waes.palazares.scalableweb.domain.DifferenceResult;
 import com.waes.palazares.scalableweb.domain.DifferenceType;
+import com.waes.palazares.scalableweb.service.DifferenceService;
 
 @RunWith(SpringRunner.class)
 @DataMongoTest
@@ -25,6 +27,9 @@ public class DifferenceRepositoryTest {
 
     @Autowired
     private DifferenceRepository repository;
+
+    @MockBean
+    private DifferenceService differenceService;
 
     @Test
     public void shouldReturnSaved() {
