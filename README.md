@@ -15,9 +15,10 @@ Binary data comparison service. WAES coding assignment
 
 ## Libs used
 
-* Java 8
-* Gradle 4
+* Java 11
+* Gradle 5
 * Spring Boot 2
+* WebFlux
 * Lombok
 * Swagger 2
 * JUnitParams 1.1 (for testing)
