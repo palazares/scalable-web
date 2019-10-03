@@ -97,12 +97,10 @@ public class DifferenceServiceImpl implements DifferenceService {
     }
 
     private Mono<byte[]> decode(String doc) {
-        try {
-            return Mono.just(Base64.getDecoder().decode(doc));
-        } catch (IllegalArgumentException e) {
-            log.debug("Not valid base64 string: {}", doc, e);
-            return Mono.error(new InvalidBase64Exception());
-        }
+        return Mono.just(doc)
+                .map(d -> Base64.getDecoder().decode(d))
+                .doOnError(ex -> log.debug("Not valid base64 string: $doc", ex))
+                .onErrorMap(ex -> new InvalidBase64Exception());
     }
 
     private Mono<DifferenceResult> compare(DifferenceRecord record) {
