@@ -87,7 +87,7 @@ public class DifferenceServiceImpl implements DifferenceService {
         var record = repository.findById(id).defaultIfEmpty(DifferenceRecord.builder().id(id).build());
 
         var sameDocRecord = decodedDoc.flatMap(d ->
-                record.filter(rec -> isLeft ? Arrays.equals(rec.getLeft(), d) : Arrays.equals(rec.getRight(), d)));
+                record.filter(rec ->  Arrays.equals((isLeft ? rec.getLeft() : rec.getRight()), d)));
 
         return sameDocRecord.switchIfEmpty(
                 decodedDoc.flatMap(d -> record
